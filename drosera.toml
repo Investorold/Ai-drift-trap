@@ -1,0 +1,30 @@
+ethereum_rpc = "https://0xrpc.io/hoodi"
+drosera_rpc = "https://relay.hoodi.drosera.io"
+eth_chain_id = 560048
+drosera_address = "0x91cB447BaFc6e0EA0F4Fe056F5a9b1F14bb06e5D"
+
+# drosera.toml
+# Configuration for the AI Drift Detection Trap
+
+[traps.ai_drift_trap]
+# address = "0x0000000000000000000000000000000000000000" # Placeholder: Replace with deployed AIDriftTrap address
+path = "out/AIDriftTrap.sol/AIDriftTrap.json"
+response_contract = "0x191c49133B132EE96a02CEd871497a30B04a7ABC"
+response_function = "handleDrift(string)" # Placeholder: Replace with your response function signature
+cooldown_period_blocks = 33
+min_number_of_operators = 1
+max_number_of_operators = 2
+block_sample_size = 10
+private_trap = true
+whitelist = ["0x018Ecd0cC400C083a74E44a69056D82Adb089F41"]
+address = "0x1bc6A7EDC145C3A116C646cd81D3a4be1C0a8161"
+# address = "0x90f8dEAd8735282F339a1d8E356EF80ab68C902A"
+
+[traps.ai_drift_trap.functions]
+collect = "collect()"
+should_respond = "shouldRespond(bytes[])"
+
+# You might add more configuration here, such as:
+# [traps.ai_drift_trap.parameters]
+# driftThreshold = 100
+# windowSize = 5
