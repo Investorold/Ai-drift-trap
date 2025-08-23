@@ -9,7 +9,7 @@ drosera_address = "0x91cB447BaFc6e0EA0F4Fe056F5a9b1F14bb06e5D"
 [traps.ai_drift_trap]
 # address = "0x0000000000000000000000000000000000000000" # Placeholder: Replace with deployed AIDriftTrap address
 path = "out/AIDriftTrap.sol/AIDriftTrap.json"
-response_contract = "0x191c49133B132EE96a02CEd871497a30B04a7ABC"
+response_contract = "0x56a0C23256F9234EE79f6c98066B1B92faCb6eb7"
 response_function = "handleDrift(string)" # Placeholder: Replace with your response function signature
 cooldown_period_blocks = 33
 min_number_of_operators = 1

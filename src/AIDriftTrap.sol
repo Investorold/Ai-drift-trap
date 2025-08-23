@@ -5,15 +5,21 @@ import "./interfaces/ITrap.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./AIMock.sol";
 import "./AIConfig.sol";
+import "./TrapRegistry.sol"; // Import the new registry contract
 
 contract AIDriftTrap is ITrap {
-    // This address is the deployed AIConfig contract on the Hoodi testnet.
-    AIConfig public constant AI_CONFIG_ADDRESS = AIConfig(0x71dd5e8E61eB56A536e9073cbeAf6b9649049154);
+    // IMPORTANT: This address must be updated with the deployed TrapRegistry contract address.
+    TrapRegistry public constant TRAP_REGISTRY = TrapRegistry(0x96C5cc8CD6b7B70d9eE8b92a1068AbAB32a75Ab7);
 
     function collect() external view override returns (bytes memory) {
-        AIMock aiModel = AIMock(AI_CONFIG_ADDRESS.aiModelAddress());
+        // Ask the registry for the *current* AIConfig address
+        address currentConfigAddress = TRAP_REGISTRY.contractAddresses("AIConfig");
+        require(currentConfigAddress != address(0), "AIConfig address not set in registry");
+        AIConfig currentConfig = AIConfig(currentConfigAddress);
+
+        AIMock aiModel = AIMock(currentConfig.aiModelAddress());
         uint256 prediction = aiModel.getPrediction();
-        uint256 driftThreshold = AI_CONFIG_ADDRESS.driftThreshold();
+        uint256 driftThreshold = currentConfig.driftThreshold();
         return abi.encode(prediction, driftThreshold);
     }
 
