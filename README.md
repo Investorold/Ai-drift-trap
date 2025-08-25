@@ -123,7 +123,7 @@ forge build
 Edit your `drosera.toml` file (`nano drosera.toml`) to include the following configurations. Replace placeholder addresses with your deployed contract addresses and your operator's whitelisted address.
 
 ```toml
-ethereum_rpc = "https://ethereum-hoodi-rpc.publicnode.com"
+ethereum_rpc = "https://0xrpc.io/hoodi"
 drosera_rpc = "https://relay.hoodi.drosera.io"
 eth_chain_id = 560048
 drosera_address = "0x91cB447BaFc6e0EA0F4Fe056F5a9b1F14bb06e5D"
@@ -194,7 +194,7 @@ I set up my Drosera operator using Docker to service my trap.
 
 ```bash
 drosera-operator register \
-  --eth-rpc-url https://ethereum-hoodi-rpc.publicnode.com \
+  --eth-rpc-url https://0xrpc.io/hoodi \
   --eth-private-key your_eth_private_key_here \
   --drosera-address 0x91cB447BaFc6e0EA0F4Fe056F5a9b1F14bb06e5D
 ```
@@ -203,7 +203,7 @@ drosera-operator register \
 
 ```bash
 drosera-operator optin \
-  --eth-rpc-url https://ethereum-hoodi-rpc.publicnode.com \
+  --eth-rpc-url https://0xrpc.io/hoodi \
   --eth-private-key your_eth_private_key_here \
   --trap-config-address your_trap_config_address_here
 ```
@@ -225,12 +225,12 @@ To verify my traps, I simulated drift events and observed the full end-to-end fl
     *   Create a file named `.env` (if it doesn't exist).
     *   Add the following lines, replacing the placeholders with your actual values:
         ```
-        RPC_URL=https://ethereum-hoodi-rpc.publicnode.com
+        RPC_URL=https://0xrpc.io/hoodi
         PRIVATE_KEY=YOUR_ETHEREUM_PRIVATE_KEY_FOR_TRANSACTIONS # This key will be used to send transactions to ChatGPTInfoStore
         CHATGPT_INFO_STORE_ADDRESS=YOUR_DEPLOYED_CHATGPT_INFO_STORE_CONTRACT_ADDRESS
         OPENAI_API_KEY=YOUR_OPENAI_API_KEY
         ```
-    *   **Important Note on `OPENAI_API_KEY`:** The OpenAI API typically requires a paid plan for access. Ensure your account has sufficient credits or is on a billing plan to avoid API errors.
+    *   **Important Note on `OPENAI_API_KEY`:** The OpenAI API requires a paid plan for reliable access. Free-tier keys are often heavily rate-limited or may not work. Ensure your account has a valid billing plan to avoid API errors.
 3.  **Run the Service:**
     *   From the project root, execute: `python3 scripts/chatgpt_service/main.py`
     *   This script will fetch data from ChatGPT, encode it, and update your `ChatGPTInfoStore` contract on-chain, simulating a drift event.
@@ -286,7 +286,7 @@ Building this project involved navigating several non-trivial Drosera constraint
 *   **No Response Contract**: Created and deployed `ResponseContract.sol` and updated `drosera.toml` with its address and `handleDrift(string)` signature.
 *   **`InvalidNumberOfOperators` for Private Traps**: Added my operator's public wallet address to the `whitelist` in `drosera.toml` for `private_trap = true`.
 *   **New Trap vs. Update**: Learned that for a new trap, the `address` field in `drosera.toml` must be commented out for `drosera apply` to generate a new address.
-*   **Unstable RPC Network Issues**: Switched to alternative RPC endpoints (e.g., `https://ethereum-hoodi-rpc.publicnode.com`) in `drosera.toml` for improved stability.
+*   **Unstable RPC Network Issues**: Switched to alternative RPC endpoints (e.g., `https://0xrpc.io/hoodi`) in `drosera.toml` for improved stability.
 
 ## 8. Comprehensive Testing of `shouldRespond`
 
