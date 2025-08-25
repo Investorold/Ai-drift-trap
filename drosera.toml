@@ -1,30 +1,43 @@
-ethereum_rpc = "https://0xrpc.io/hoodi"
+ethereum_rpc = "https://ethereum-hoodi-rpc.publicnode.com"
 drosera_rpc = "https://relay.hoodi.drosera.io"
 eth_chain_id = 560048
 drosera_address = "0x91cB447BaFc6e0EA0F4Fe056F5a9b1F14bb06e5D"
 
-# drosera.toml
-# Configuration for the AI Drift Detection Trap
-
+# --- TRAP 1: The original AI Drift Trap ---
 [traps.ai_drift_trap]
-# address = "0x0000000000000000000000000000000000000000" # Placeholder: Replace with deployed AIDriftTrap address
+name = "AI Drift Trap"
+description = "Monitors a numerical value for drift."
 path = "out/AIDriftTrap.sol/AIDriftTrap.json"
-response_contract = "0x191c49133B132EE96a02CEd871497a30B04a7ABC"
-response_function = "handleDrift(string)" # Placeholder: Replace with your response function signature
+response_contract = "0x56a0C23256F9234EE79f6c98066B1B92faCb6eb7"
+response_function = "handleDrift(string)"
 cooldown_period_blocks = 33
 min_number_of_operators = 1
 max_number_of_operators = 2
-block_sample_size = 10
+block_sample_size = 100
 private_trap = true
 whitelist = ["0x018Ecd0cC400C083a74E44a69056D82Adb089F41"]
 address = "0x1bc6A7EDC145C3A116C646cd81D3a4be1C0a8161"
-# address = "0x90f8dEAd8735282F339a1d8E356EF80ab68C902A"
 
 [traps.ai_drift_trap.functions]
 collect = "collect()"
 should_respond = "shouldRespond(bytes[])"
 
-# You might add more configuration here, such as:
-# [traps.ai_drift_trap.parameters]
-# driftThreshold = 100
-# windowSize = 5
+# --- TRAP 2: ChatGPT Analysis Trap ---
+[traps.chatgpt_analysis_trap]
+name = "ChatGPT Analysis Trap"
+description = "A trap that analyzes encoded ChatGPT data on-chain."
+path = "out/ChatGPTAnalysisTrap.sol/ChatGPTAnalysisTrap.json"
+response_contract = "0x7Ac5426B0D22786bF96AE5e4eeB9132F2926235F"
+response_function = "respond(bytes)"
+cooldown_period_blocks = 33
+min_number_of_operators = 1
+max_number_of_operators = 2
+block_sample_size = 100
+private_trap = true
+whitelist = ["0x018Ecd0cC400C083a74E44a69056D82Adb089F41"]
+address = "0x90f8dEAd8735282F339a1d8E356EF80ab68C902A"
+
+
+[traps.chatgpt_analysis_trap.functions]
+collect = "collect()"
+should_respond = "shouldRespond(bytes[])"

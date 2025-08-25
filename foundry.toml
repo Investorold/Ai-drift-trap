@@ -1,3 +1,5 @@
+[rpc_endpoints]
+hoodi = "https://rpc.hoodi.ethpandaops.io"
 [profile.default]
 src = "src"
 out = "out"
