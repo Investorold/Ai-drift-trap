@@ -1,4 +1,5 @@
 import os
+import time
 from web3 import Web3
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -8,13 +9,9 @@ from eth_account import Account
 load_dotenv()
 
 # --- Configuration ---
-# Blockchain RPC URL (e.g., Sepolia, Hoodi testnet)
 RPC_URL = os.getenv("RPC_URL")
-# Your private key (ensure this is handled securely, e.g., via environment variables)
 PRIVATE_KEY = os.getenv("PRIVATE_KEY")
-# Address of your deployed ChatGPTInfoStore contract
 CHATGPT_INFO_STORE_ADDRESS = os.getenv("CHATGPT_INFO_STORE_ADDRESS")
-# OpenAI API Key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # --- Web3 Setup ---
@@ -23,12 +20,12 @@ if not w3.is_connected():
     print("Failed to connect to Web3 provider!")
     exit()
 
-# Your account
 account = Account.from_key(PRIVATE_KEY)
 w3.eth.default_account = account.address
 
 print(f"Connected to blockchain. Account: {account.address}")
 
+# --- Contract ABI (from ChatGPTInfoStore.sol) ---
 CHATGPT_INFO_STORE_ABI = [
   {
     "type": "constructor",
@@ -159,14 +156,17 @@ chatgpt_info_store_contract = w3.eth.contract(
 openai_client = OpenAI(api_key=OPENAI_API_KEY)
 
 # --- Main Logic ---
-def get_chatgpt_response(prompt_text: str) -> str:
+def get_sentiment_sentence(text_to_analyze: str) -> str:
+    """
+    Asks the AI for a sentiment analysis and returns the full sentence response.
+    """
+    prompt = f"Analyze the sentiment of the following text and respond with a full sentence, including the word POSITIVE, NEUTRAL, or NEGATIVE. Text: '{text_to_analyze}'"
     try:
-        # Using the Chat Completions API (can be switched to Responses API if needed)
         response = openai_client.chat.completions.create(
-            model="gpt-3.5-turbo", # Or "gpt-4", "gpt-4o", etc.
+            model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": prompt_text}
+                {"role": "system", "content": "You are a helpful assistant who analyzes sentiment."},
+                {"role": "user", "content": prompt}
             ]
         )
         return response.choices[0].message.content
@@ -174,52 +174,48 @@ def get_chatgpt_response(prompt_text: str) -> str:
         print(f"Error getting ChatGPT response: {e}")
         return ""
 
-def encode_response_for_onchain(response_text: str) -> str:
-    # This is where you'll implement your encoding logic.
-    # For now, we'll just return the first 100 characters or the full text if shorter.
-    # In a real scenario, you might encode sentiment, keywords, a hash, etc.
-    if len(response_text) > 100:
-        return response_text[:100] + "..."
-    return response_text
-
-def update_onchain_info(encoded_info: str):
-    print(f"Attempting to update on-chain info with: {encoded_info}")
+def update_onchain_info(info_sentence: str):
+    """
+    Pushes the provided sentence to the on-chain info store.
+    """
+    print(f"Attempting to update on-chain info with: '{info_sentence}'")
     try:
-        # Build the transaction
-        transaction = chatgpt_info_store_contract.functions.updateInfo(encoded_info).build_transaction({
+        transaction = chatgpt_info_store_contract.functions.updateInfo(info_sentence).build_transaction({
             'from': account.address,
             'nonce': w3.eth.get_transaction_count(account.address),
-            'gas': 200000, # Adjust gas limit as needed
-            'gasPrice': w3.eth.gas_price # Or use w3.to_wei('gwei', 'gas_price_in_gwei')
+            'gas': 200000,
+            'gasPrice': w3.eth.gas_price
         })
-
-        # Sign the transaction
         signed_txn = w3.eth.account.sign_transaction(transaction, private_key=PRIVATE_KEY)
-
-        # Send the transaction
         tx_hash = w3.eth.send_raw_transaction(signed_txn.raw_transaction)
         print(f"Transaction sent. Tx Hash: {tx_hash.hex()}")
-
-        # Wait for the transaction to be mined
         receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-        print(f"Transaction mined. Status: {receipt.status}")
         if receipt.status == 1:
             print("On-chain info updated successfully!")
         else:
             print("Transaction failed!")
-
     except Exception as e:
         print(f"Error updating on-chain info: {e}")
 
 if __name__ == "__main__":
-    # Example usage:
-    prompt = "Summarize the main benefits of blockchain technology in one sentence."
-    chatgpt_text = get_chatgpt_response(prompt)
+    # A list of sample texts to test our sentiment trap
+    sample_texts = [
+        "This project is incredible, the technology is revolutionary and the team is top-notch!",
+        "I'm not sure how I feel about the latest update, it has some good and bad points.",
+        "This is a complete disaster, the platform is buggy and I'm selling everything. This is very NEGATIVE."
+    ]
 
-    if chatgpt_text:
-        encoded_data = encode_response_for_onchain(chatgpt_text)
-        update_onchain_info(encoded_data)
-    else:
-        print("Could not get a response from ChatGPT.")
+    # Loop through the sample texts and update the on-chain data
+    for text in sample_texts:
+        print(f"\n--- Analyzing new text: '{text[:50]}...' ---")
+        sentiment_sentence = get_sentiment_sentence(text)
 
-    print("Script finished.")
+        if sentiment_sentence:
+            update_onchain_info(sentiment_sentence)
+        else:
+            print("Could not get a response from ChatGPT.")
+        
+        print("Waiting for 30 seconds before next analysis...")
+        time.sleep(30) # Wait for 30 seconds
+
+    print("\nScript finished.")

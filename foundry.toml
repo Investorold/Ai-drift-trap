@@ -1,5 +1,5 @@
 [rpc_endpoints]
-hoodi = "https://rpc.hoodi.ethpandaops.io"
+hoodi = "https://rpc.ankr.com/eth_hoodi/d2f0692606e2b858a4904e52c1bd966334eb0a117e38dac39facea04c5413270"
 [profile.default]
 src = "src"
 out = "out"
